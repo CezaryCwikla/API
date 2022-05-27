@@ -1,7 +1,6 @@
 from flask import jsonify
 from webargs.flaskparser import use_args
 
-
 from api_czujnikow_rzek import db
 from api_czujnikow_rzek.modele import Czujnik, czujnik_schema, CzujnikSchema, SampleData, sample_schema, SampleDataSchema
 from api_czujnikow_rzek.utils import validate_json_content_type, get_schema_args, apply_order, apply_filter, get_pagination
