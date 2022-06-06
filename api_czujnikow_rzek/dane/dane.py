@@ -8,7 +8,7 @@ from api_czujnikow_rzek.dane import dane_bp
 
 @dane_bp.route('/dane', methods=['GET'])
 def get_dane():
-    dane = SampleData.query.first()
+    dane = SampleData.query.head(24)
     return jsonify({
         'success': True,
         'data': sample_schema.dump(dane)

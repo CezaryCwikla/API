@@ -67,13 +67,11 @@ class CzujnikSchema(Schema):
     updated_user_id = fields.Integer()
     created_at = fields.Date()
     updated_at = fields.Date()
-    data = fields.List(fields.Nested(lambda: SampleDataSchema()))
+    #data = fields.List(fields.Nested(lambda: SampleDataSchema()))
 
 class SampleDataSchema(Schema):
     id = fields.Integer(dump_only=True)
-    LoggerID = fields.Integer()
-    Channel = fields.Integer()
-    DateTime = fields.Date()
+    DateTime = fields.DateTime()
     Value = fields.Integer()
 
 
