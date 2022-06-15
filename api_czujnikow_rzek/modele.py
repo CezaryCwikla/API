@@ -51,9 +51,10 @@ class SampleData(db.Model):
 
 class DanePowietrza(db.Model):
     __bind_key__ = 'two'
-    __tablename__ = 'METEO_DATA'
+    __tablename__ = 'meteo_data'
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.Integer)
+    measurement_time = db.Column(db.Date)
     wind_speed = db.Column(db.Float(precision=2))
     wind_direct = db.Column(db.Float(precision=2))
     temperature = db.Column(db.Float(precision=2))
@@ -64,30 +65,53 @@ class DanePowietrza(db.Model):
 
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}>: {self.place}   {self.id}  {self.data}'
+        return f'<{self.__class__.__name__}>:   {self.id} '
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
         return value
 
+class StacjePowietrza(db.Model):
+    __bind_key__ = 'three'
+    __tablename__ = 'STACJE_METEO'
+    ID = db.Column(db.Integer, primary_key=True)
+    ADRES = db.Column(db.String(20))
+    ID_ADRES = db.Column(db.String(20))
+    DL_G = db.Column(db.String(20))
+    SZ_G = db.Column(db.String(20))
+
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>:   {self.ID} '
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value
+
+
+
 class DanePowietrzaSchema(Schema):
     id = fields.Integer(dump_only=True)
     device_id = fields.Integer()
+    measurement_time = fields.DateTime()
     wind_speed = fields.Float()
     wind_direct = fields.Float()
     temperature = fields.Float()
     pressure = fields.Float()
     humidity = fields.Float()
     rain = fields.Integer()
-    location_id = fields.Integer()
 
 
+
+class StacjePowietrzaSchema(Schema):
+    ID = fields.Integer(dump_only=True)
+    ADRES = fields.String()
+    DL_G = fields.String()
+    SZ_G = fields.String()
 
 
 class CzujnikSchema(Schema):
     id = fields.Integer(dump_only=True)
-    PhoneNumberID = fields.Integer()
-    Logger_id = fields.String()
     place = fields.String()
     river = fields.String()
     lat = fields.Float()
@@ -95,18 +119,12 @@ class CzujnikSchema(Schema):
     warning = fields.Integer()
     alarm = fields.Integer()
     status_id = fields.String()
-    visible = fields.Integer()
     type = fields.String()
-    list_sort_order = fields.Integer()
-    created_user_id = fields.Integer()
-    updated_user_id = fields.Integer()
-    created_at = fields.Date()
-    updated_at = fields.Date()
     #data = fields.List(fields.Nested(lambda: SampleDataSchema()))
 
 class SampleDataSchema(Schema):
-    id = fields.Integer(dump_only=True)
     DateTime = fields.DateTime()
+    LoggerID = fields.Integer()
     Value = fields.Integer()
 
 
@@ -114,3 +132,4 @@ class SampleDataSchema(Schema):
 czujnik_schema = CzujnikSchema()
 sample_schema = SampleDataSchema()
 danepowietrza_schema = DanePowietrzaSchema()
+stacjepowietrza_schema = StacjePowietrzaSchema()

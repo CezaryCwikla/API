@@ -11,18 +11,11 @@ from api_czujnikow_rzek.czujniki import czujniki_bp
 @czujniki_bp.route('/czujniki', methods=['GET'])
 def get_czujniki():
     query = Czujnik.query
-    schema_args = get_schema_args(Czujnik)
-    query = apply_order(Czujnik, query)
-    query = apply_filter(Czujnik, query)
-
-    items, pagination = get_pagination(query, 'czujniki.get_czujniki')
-    czujniki = CzujnikSchema(**schema_args).dump(items)
+    czujniki = CzujnikSchema(many=True).dump(query)
 
     return jsonify({
         'success': True,
-        'data': czujniki,
-        'number_of_records': len(czujniki),
-        'pagination': pagination
+        'Zbiór czujników': czujniki,
     })
 
 
@@ -31,7 +24,7 @@ def get_czujnik(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     return jsonify({
         'success': True,
-        'data': czujnik_schema.dump(czujnik)
+        'Czujnik': czujnik_schema.dump(czujnik)
     })
 
 
@@ -39,12 +32,14 @@ def get_czujnik(czujnik_id: int):
 def get_czujnik_dane_aktualne(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = czujnik_schema.dump(czujnik)
-    dane = SampleData.query.order_by(SampleData.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
+    dane = SampleData.query.filter(SampleData.LoggerID == czujnik_id)
+    dane = dane.order_by(SampleData.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
    #dane, pagination = get_pagination(dane, 'czujniki.get_czujnik_dane')
     dane = sample_schema.dump(dane)
     return jsonify({
         'success': True,
-        'data': dane
+        'Czujnik': czujnik,
+        'Ostatni pomiar': dane
     })
 
 
@@ -58,6 +53,6 @@ def get_czujnik_dane_historyczne(czujnik_id: int):
     dane = SampleDataSchema(many=True).dump(dane)
     return jsonify({
         'success': True,
-        'czujnik': czujnik,
-        'data': dane
+        'Czujnik': czujnik,
+        'Dane z ostatnich 24 godzin': dane
     })
