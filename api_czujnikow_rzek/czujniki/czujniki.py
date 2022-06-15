@@ -25,6 +25,7 @@ def get_czujniki():
         'pagination': pagination
     })
 
+
 @czujniki_bp.route('/czujniki/<int:czujnik_id>', methods=['GET'])
 def get_czujnik(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
@@ -33,17 +34,19 @@ def get_czujnik(czujnik_id: int):
         'data': czujnik_schema.dump(czujnik)
     })
 
+
 @czujniki_bp.route('/czujniki/<int:czujnik_id>/aktualne', methods=['GET'])
 def get_czujnik_dane_aktualne(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = czujnik_schema.dump(czujnik)
-    dane = SampleData.query.order_by(SampleData.id.desc()).first()
+    dane = SampleData.query.order_by(SampleData.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
    #dane, pagination = get_pagination(dane, 'czujniki.get_czujnik_dane')
     dane = sample_schema.dump(dane)
     return jsonify({
         'success': True,
         'data': dane
     })
+
 
 @czujniki_bp.route('/czujniki/<int:czujnik_id>/historyczne', methods=['GET'])
 def get_czujnik_dane_historyczne(czujnik_id: int):
