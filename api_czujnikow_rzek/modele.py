@@ -49,6 +49,41 @@ class SampleData(db.Model):
         return value
 
 
+class DanePowietrza(db.Model):
+    __bind_key__ = 'two'
+    __tablename__ = 'METEO_DATA'
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.Integer)
+    wind_speed = db.Column(db.Float(precision=2))
+    wind_direct = db.Column(db.Float(precision=2))
+    temperature = db.Column(db.Float(precision=2))
+    pressure = db.Column(db.Float(precision=2))
+    humidity = db.Column(db.Float(precision=2))
+    rain = db.Column(db.Integer)
+    location_id = db.Column(db.Integer)
+
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>: {self.place}   {self.id}  {self.data}'
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value
+
+class DanePowietrzaSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    device_id = fields.Integer()
+    wind_speed = fields.Float()
+    wind_direct = fields.Float()
+    temperature = fields.Float()
+    pressure = fields.Float()
+    humidity = fields.Float()
+    rain = fields.Integer()
+    location_id = fields.Integer()
+
+
+
+
 class CzujnikSchema(Schema):
     id = fields.Integer(dump_only=True)
     PhoneNumberID = fields.Integer()
@@ -78,4 +113,4 @@ class SampleDataSchema(Schema):
 
 czujnik_schema = CzujnikSchema()
 sample_schema = SampleDataSchema()
-
+danepowietrza_schema = DanePowietrzaSchema()
