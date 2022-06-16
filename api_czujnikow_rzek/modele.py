@@ -71,6 +71,62 @@ class DanePowietrza(db.Model):
     def additional_validation(param: str, value: str) -> str:
         return value
 
+class DanePMPowietrza(db.Model):
+    __bind_key__ = 'two'
+    __tablename__ = 'fardata_pm_raw_data'
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.Integer)
+    measurement_time = db.Column(db.Date)
+    pm1 = db.Column(db.Float(precision=2))
+    pm25 = db.Column(db.Float(precision=2))
+    pm10 = db.Column(db.Float(precision=2))
+
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>:   {self.id} '
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value
+
+
+class DaneHalasu(db.Model):
+    __bind_key__ = 'two'
+    __tablename__ = 'fardata_noise_level'
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.Integer)
+    measurement_time = db.Column(db.Date)
+    leq = db.Column(db.Float(precision=2))
+
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>:   {self.id} '
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value
+
+
+class DaneZanieczyszczeniaPowietrza(db.Model):
+    __bind_key__ = 'two'
+    __tablename__ = 'fardata_atmo_data'
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.Integer)
+    measurement_time = db.Column(db.Date)
+    NO2 = db.Column(db.Float(precision=2))
+    NO = db.Column(db.Float(precision=2))
+    CO = db.Column(db.Float(precision=2))
+    CO2_NDIR = db.Column(db.Float(precision=2))
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}>:   {self.id} '
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value
+
+
+
 class StacjePowietrza(db.Model):
     __bind_key__ = 'three'
     __tablename__ = 'STACJE_METEO'
@@ -100,6 +156,32 @@ class DanePowietrzaSchema(Schema):
     pressure = fields.Float()
     humidity = fields.Float()
     rain = fields.Integer()
+
+
+
+class DanePMPowietrzaSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    device_id = fields.Integer()
+    measurement_time = fields.DateTime()
+    pm1 = fields.Float()
+    pm25 = fields.Float()
+    pm10 = fields.Float()
+
+class DaneHalasuSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    device_id = fields.Integer()
+    measurement_time = fields.DateTime()
+    leq = fields.Float()
+
+
+class DaneZanieczyszczeniaPowietrzaSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    device_id = fields.Integer()
+    measurement_time = fields.DateTime()
+    NO2 = fields.Float()
+    NO = fields.Float()
+    CO = fields.Float()
+    CO2_NDIR = fields.Float()
 
 
 
@@ -133,3 +215,6 @@ czujnik_schema = CzujnikSchema()
 sample_schema = SampleDataSchema()
 danepowietrza_schema = DanePowietrzaSchema()
 stacjepowietrza_schema = StacjePowietrzaSchema()
+danepmpowietrza_schema = DanePMPowietrzaSchema()
+danehalasu_schema = DaneHalasuSchema()
+danezanieczyszczenia_schemna = DaneZanieczyszczeniaPowietrzaSchema()

@@ -4,7 +4,10 @@ from datetime import date, timedelta, datetime
 from api_czujnikow_rzek import db
 from api_czujnikow_rzek.modele import DanePowietrza, czujnik_schema, DanePowietrzaSchema, \
     StacjePowietrzaSchema, StacjePowietrza, stacjepowietrza_schema,\
-    SampleData, sample_schema, SampleDataSchema, danepowietrza_schema
+    SampleData, sample_schema, SampleDataSchema, danepowietrza_schema,\
+    DanePMPowietrza, DaneHalasu, DaneZanieczyszczeniaPowietrza,\
+    DaneZanieczyszczeniaPowietrzaSchema, DanePMPowietrzaSchema, DaneHalasuSchema,\
+    danepmpowietrza_schema, danehalasu_schema, danezanieczyszczenia_schemna
 from api_czujnikow_rzek.utils import validate_json_content_type, get_schema_args, apply_order, \
     apply_filter, get_pagination
 from api_czujnikow_rzek.powietrza import powietrza_bp
@@ -33,14 +36,34 @@ def get_czujnik(czujnik_id: int):
 def get_aktualne(czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = stacjepowietrza_schema.dump(czujnik)
-    dane = DanePowietrza.query.filter(DanePowietrza.device_id == czujnik_id)
-    dane = dane.order_by(DanePowietrza.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
+
+    danemeteo = DanePowietrza.query.filter(DanePowietrza.device_id == czujnik_id)
+    danemeteo = danemeteo.order_by(DanePowietrza.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
    #dane, pagination = get_pagination(dane, 'czujniki.get_czujnik_dane')
-    dane = danepowietrza_schema.dump(dane)
+    danemeteo = danepowietrza_schema.dump(danemeteo)
+
+    danepm = DanePMPowietrza.query.filter(DanePMPowietrza.device_id == czujnik_id)
+    danepm = danepm.order_by(DanePMPowietrza.id.desc()).first()
+    danepm = danepmpowietrza_schema.dump(danepm)
+
+    danezanieczyszczenia = DaneZanieczyszczeniaPowietrza.query.filter\
+        (DaneZanieczyszczeniaPowietrza.device_id == czujnik_id)
+    danezanieczyszczenia = danezanieczyszczenia.order_by(DaneZanieczyszczeniaPowietrza.
+                                                         id.desc()).first()
+    danezanieczyszczenia = danezanieczyszczenia_schemna.dump(danezanieczyszczenia)
+    #
+    ### TO DO:
+    # dopiero w sumie zrobilem tutaj czesc, jest kwestia potestowania tego
+    # nastepnie polaczenia w jedno i stworzenia jakikejs struktury
+    # nastepnie pushujemy to live
+    #danepm.update(danezanieczyszczenia)
     return jsonify({
         'success': True,
         'Czujnik': czujnik,
-        'Ostatni pomiar': dane
+        'Ostatni pomiar pogodowy': danemeteo,
+        'Ostatni pomiar PM': danepm,
+        'Ostatni pomiar Zanieczyszczen': danezanieczyszczenia,
+
     })
 
 
