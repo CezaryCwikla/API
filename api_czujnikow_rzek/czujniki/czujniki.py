@@ -33,8 +33,7 @@ def get_czujnik_dane_aktualne(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = czujnik_schema.dump(czujnik)
     dane = SampleData.query.filter(SampleData.LoggerID == czujnik_id)
-    dane = dane.order_by(SampleData.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
-   #dane, pagination = get_pagination(dane, 'czujniki.get_czujnik_dane')
+    dane = dane.order_by(SampleData.id.desc()).first()
     dane = sample_schema.dump(dane)
     return jsonify({
         'success': True,
