@@ -51,7 +51,15 @@ def get_aktualne(czujnik_id: int):
     danezanieczyszczenia = danezanieczyszczenia.order_by(DaneZanieczyszczeniaPowietrza.
                                                          id.desc()).first()
     danezanieczyszczenia = danezanieczyszczenia_schemna.dump(danezanieczyszczenia)
+
+    danehalasu = DaneHalasu.query.filter(DaneHalasu.device_id == czujnik_id)
+    danehalasu = danehalasu.order_by(DaneHalasu.id.desc()).first()
+    danehalasu = danehalasu_schema.dump(danehalasu)
+
+
+
     #
+
     ### TO DO:
     # dopiero w sumie zrobilem tutaj czesc, jest kwestia potestowania tego
     # nastepnie polaczenia w jedno i stworzenia jakikejs struktury
@@ -63,6 +71,7 @@ def get_aktualne(czujnik_id: int):
         'Ostatni pomiar pogodowy': danemeteo,
         'Ostatni pomiar PM': danepm,
         'Ostatni pomiar Zanieczyszczen': danezanieczyszczenia,
+        'Ostatni pomiar halasu': danehalasu
 
     })
 
@@ -71,11 +80,39 @@ def get_aktualne(czujnik_id: int):
 def get_historyczne(czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = stacjepowietrza_schema.dump(czujnik)
-    dane = DanePowietrza.query.filter(DanePowietrza.device_id == czujnik_id, DanePowietrza.measurement_time > datetime.now() - timedelta(hours=25)).all()
-    # dane, pagination = get_pagination(dane, 'czujniki.get_czujnik_dane')
-    dane = DanePowietrzaSchema(many=True).dump(dane)
+
+    #
+    danemeteo = DanePowietrza.query.filter(DanePowietrza.device_id == czujnik_id,
+                                      DanePowietrza.measurement_time > datetime.now() - timedelta(hours=25)).all()
+
+    danemeteo = DanePowietrzaSchema(many=True).dump(danemeteo)
+    ### TO DO:
+    # dopiero w sumie zrobilem tutaj czesc, jest kwestia potestowania tego
+    # nastepnie polaczenia w jedno i stworzenia jakikejs struktury
+    # nastepnie pushujemy to live
+    # danepm.update(danezanieczyszczenia)
+
+
+
+    danepm = DanePMPowietrza.query.filter(DanePMPowietrza.device_id == czujnik_id, DanePMPowietrza.measurement_time > datetime.now() - timedelta(hours=25)).all()
+
+    danepm = DanePMPowietrzaSchema(many=True).dump(danepm)
+
+    danezanieczyszczenia = DaneZanieczyszczeniaPowietrza.query.filter(DaneZanieczyszczeniaPowietrza.device_id == czujnik_id,
+                                      DaneZanieczyszczeniaPowietrza.measurement_time > datetime.now() - timedelta(hours=25)).all()
+
+    danezanieczyszczenia = DaneZanieczyszczeniaPowietrzaSchema(many=True).dump(danezanieczyszczenia)
+
+    danehalasu = DaneHalasu.query.filter(DaneHalasu.device_id == czujnik_id,
+                                      DaneHalasu.measurement_time > datetime.now() - timedelta(hours=25)).all()
+    danehalasu = DaneHalasuSchema(many=True).dump(danehalasu)
+
+
     return jsonify({
         'success': True,
         'Czujnik': czujnik,
-        'Dane z ostatnich 24 godzin': dane
+        'Dane pogodowe z ostatnich 24 godzin': danemeteo,
+        'Dane PM z ostatnich 24 godzin': danepm,
+        'Dane Zanieczyszczen z ostatnich 24 godzin': danezanieczyszczenia,
+        'Dane Halasu z ostatnich 24 godzin': danehalasu
     })
