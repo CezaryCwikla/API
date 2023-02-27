@@ -4,4 +4,4 @@ SQLALCHEMY_DATABASE_URI=
 
 W .flaskenv:
 FLASK_APP=api.py
-FLASK_ENV=development
+FLASK_ENV=production

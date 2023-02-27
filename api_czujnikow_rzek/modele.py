@@ -1,18 +1,43 @@
-from api_czujnikow_rzek import db
+import jwt
 
-from datetime import datetime,date
+from flask import current_app
+from api_czujnikow_rzek import db
+from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 from marshmallow import Schema, fields, validate, validates, ValidationError
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), nullable=False, unique=True, index=True)
+    email = db.Column(db.String(255), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+    created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def generate_hashed_password(password: str) -> str:
+        return generate_password_hash(password)
+
+    def generate_jwt(self) -> bytes:
+        payload = {
+            'user_id': self.id,
+            'exp': datetime.utcnow() + timedelta(minutes=current_app.config.get('JWT_EXPIRED', 30))
+        }
+        return jwt.encode(payload, current_app.config.get('SECRET_KEY'))
 
 
 class Czujnik(db.Model):
     __tablename__ = 'Logger'
+    __bind_key__ = 'four'
     id = db.Column(db.Integer, primary_key=True)
     PhoneNumberID = db.Column(db.Integer)
     Logger_id = db.Column(db.String(12))
     place = db.Column(db.String(100))
     river = db.Column(db.String(100))
-    lat = db.Column(db.Numeric(11,6))
-    lng = db.Column(db.Numeric(11,6))
+    lat = db.Column(db.Numeric(11, 6))
+    lng = db.Column(db.Numeric(11, 6))
     warning = db.Column(db.Integer)
     alarm = db.Column(db.Integer)
     status_id = db.Column(db.String(25))
@@ -35,12 +60,14 @@ class Czujnik(db.Model):
 
 class SampleData(db.Model):
     __tablename__ = 'Sample'
+    __bind_key__ = 'four'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     LoggerID = db.Column(db.Integer, db.ForeignKey('Logger.id'), nullable=False)
     logger = db.relationship('Czujnik', back_populates='data')
     Channel = db.Column(db.Integer)
     DateTime = db.Column(db.Date, nullable=False)
     Value = db.Column(db.Integer, nullable=False)
+
     def __repr__(self):
         return f'<{self.DateTime} - {self.id}  {self.Value}'
 
@@ -63,13 +90,13 @@ class DanePowietrza(db.Model):
     rain = db.Column(db.Integer)
     location_id = db.Column(db.Integer)
 
-
     def __repr__(self):
         return f'<{self.__class__.__name__}>:   {self.id} '
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
         return value
+
 
 class DanePMPowietrza(db.Model):
     __bind_key__ = 'two'
@@ -80,7 +107,6 @@ class DanePMPowietrza(db.Model):
     pm1 = db.Column(db.Float(precision=2))
     pm25 = db.Column(db.Float(precision=2))
     pm10 = db.Column(db.Float(precision=2))
-
 
     def __repr__(self):
         return f'<{self.__class__.__name__}>:   {self.id} '
@@ -97,7 +123,6 @@ class DaneHalasu(db.Model):
     device_id = db.Column(db.Integer)
     measurement_time = db.Column(db.Date)
     leq = db.Column(db.Float(precision=2))
-
 
     def __repr__(self):
         return f'<{self.__class__.__name__}>:   {self.id} '
@@ -126,7 +151,6 @@ class DaneZanieczyszczeniaPowietrza(db.Model):
         return value
 
 
-
 class StacjePowietrza(db.Model):
     __bind_key__ = 'three'
     __tablename__ = 'STACJE_METEO'
@@ -136,7 +160,6 @@ class StacjePowietrza(db.Model):
     DL_G = db.Column(db.String(20))
     SZ_G = db.Column(db.String(20))
 
-
     def __repr__(self):
         return f'<{self.__class__.__name__}>:   {self.ID} '
 
@@ -144,6 +167,13 @@ class StacjePowietrza(db.Model):
     def additional_validation(param: str, value: str) -> str:
         return value
 
+
+class UserSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    username = fields.String(required=True, validate=validate.Length(max=255, min=6))
+    email = fields.String(required=True)
+    password = fields.String(required=True, load_only=True, validate=validate.Length(max=255, min=6))
+    created = fields.DateTime(dump_only=True)
 
 
 class DanePowietrzaSchema(Schema):
@@ -158,7 +188,6 @@ class DanePowietrzaSchema(Schema):
     rain = fields.Integer()
 
 
-
 class DanePMPowietrzaSchema(Schema):
     id = fields.Integer(dump_only=True)
     device_id = fields.Integer()
@@ -166,6 +195,7 @@ class DanePMPowietrzaSchema(Schema):
     pm1 = fields.Float()
     pm25 = fields.Float()
     pm10 = fields.Float()
+
 
 class DaneHalasuSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -182,7 +212,6 @@ class DaneZanieczyszczeniaPowietrzaSchema(Schema):
     NO = fields.Float()
     CO = fields.Float()
     CO2_NDIR = fields.Float()
-
 
 
 class StacjePowietrzaSchema(Schema):
@@ -202,7 +231,8 @@ class CzujnikSchema(Schema):
     alarm = fields.Integer()
     status_id = fields.String()
     type = fields.String()
-    #data = fields.List(fields.Nested(lambda: SampleDataSchema()))
+    # data = fields.List(fields.Nested(lambda: SampleDataSchema()))
+
 
 class SampleDataSchema(Schema):
     DateTime = fields.DateTime()
@@ -210,7 +240,7 @@ class SampleDataSchema(Schema):
     Value = fields.Integer()
 
 
-
+user_schema = UserSchema()
 czujnik_schema = CzujnikSchema()
 sample_schema = SampleDataSchema()
 danepowietrza_schema = DanePowietrzaSchema()
