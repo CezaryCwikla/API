@@ -3,7 +3,7 @@ from webargs.flaskparser import use_args
 from api_czujnikow_rzek.modele import user_schema, User, UserSchema
 from api_czujnikow_rzek import db
 from api_czujnikow_rzek.auth import auth_bp
-from api_czujnikow_rzek.utils import validate_json_content_type
+from api_czujnikow_rzek.utils import validate_json_content_type, token_required
 
 
 @auth_bp.route('/register', methods=['POST'])
@@ -45,4 +45,15 @@ def login(args: dict):
     return({
         'success': True,
         'token': token
+    })
+
+
+@auth_bp.route('/me', methods=['GET'])
+@token_required
+def get_current_user(user_id: str):
+    user = User.query.get_or_404(user_id, description=f'User with id {user_id} not found')
+
+    return({
+        'success': True,
+        'user': user_schema.dump(user)
     })

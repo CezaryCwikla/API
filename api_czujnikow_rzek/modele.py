@@ -25,7 +25,7 @@ class User(db.Model):
             'user_id': self.id,
             'exp': datetime.utcnow() + timedelta(minutes=current_app.config.get('JWT_EXPIRED', 30))
         }
-        return jwt.encode(payload, current_app.config.get('SECRET_KEY'))
+        return jwt.encode(payload, current_app.config.get('SECRET_KEY'), algorithm='HS256')
 
     def is_password_valid(self, password:str) -> bool:
         return check_password_hash(self.password, password)

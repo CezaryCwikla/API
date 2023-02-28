@@ -9,12 +9,13 @@ from api_czujnikow_rzek.modele import DanePowietrza, czujnik_schema, DanePowietr
     DaneZanieczyszczeniaPowietrzaSchema, DanePMPowietrzaSchema, DaneHalasuSchema,\
     danepmpowietrza_schema, danehalasu_schema, danezanieczyszczenia_schemna
 from api_czujnikow_rzek.utils import validate_json_content_type, get_schema_args, apply_order, \
-    apply_filter, get_pagination
+    apply_filter, get_pagination, token_required
 from api_czujnikow_rzek.powietrza import powietrza_bp
 
 
 @powietrza_bp.route('/czujniki', methods=['GET'])
-def get_czujniki():
+@token_required
+def get_czujniki(user_id: str):
     query = StacjePowietrza.query
     dane = StacjePowietrzaSchema(many=True).dump(query)
     return jsonify({
@@ -22,8 +23,10 @@ def get_czujniki():
         'Zbiór czujników': dane
     })
 
-@powietrza_bp.route('/czujniki/<int:czujnik_id>', methods=['GET'])
-def get_czujnik(czujnik_id: int):
+
+@powietrza_bp.route('/czujniki/<int:czujnik_id>', methods=['GET','POST'])
+@token_required
+def get_czujnik(user_id: str, czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     dane = stacjepowietrza_schema.dump(czujnik)
     return jsonify({
@@ -33,7 +36,8 @@ def get_czujnik(czujnik_id: int):
 
 
 @powietrza_bp.route('/czujniki/<int:czujnik_id>/aktualne', methods=['GET'])
-def get_aktualne(czujnik_id: int):
+@token_required
+def get_aktualne(user_id:str, czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = stacjepowietrza_schema.dump(czujnik)
 
@@ -77,7 +81,8 @@ def get_aktualne(czujnik_id: int):
 
 
 @powietrza_bp.route('/czujniki/<int:czujnik_id>/historyczne', methods=['GET'])
-def get_historyczne(czujnik_id: int):
+@token_required
+def get_historyczne(user_id:str, czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = stacjepowietrza_schema.dump(czujnik)
 

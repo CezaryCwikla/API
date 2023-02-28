@@ -4,11 +4,12 @@ from webargs.flaskparser import use_args
 
 from api_czujnikow_rzek import db
 from api_czujnikow_rzek.modele import Czujnik, czujnik_schema, CzujnikSchema, SampleData, SampleDataSchema, sample_schema
-from api_czujnikow_rzek.utils import validate_json_content_type, get_schema_args, apply_order, apply_filter, get_pagination
+from api_czujnikow_rzek.utils import validate_json_content_type, get_schema_args, apply_order, apply_filter, get_pagination, token_required
 from api_czujnikow_rzek.czujniki import czujniki_bp
 
 
 @czujniki_bp.route('/czujniki', methods=['GET'])
+@token_required
 def get_czujniki():
     query = Czujnik.query
     czujniki = CzujnikSchema(many=True).dump(query)
@@ -20,6 +21,7 @@ def get_czujniki():
 
 
 @czujniki_bp.route('/czujniki/<int:czujnik_id>', methods=['GET'])
+@token_required
 def get_czujnik(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     return jsonify({
@@ -29,6 +31,7 @@ def get_czujnik(czujnik_id: int):
 
 
 @czujniki_bp.route('/czujniki/<int:czujnik_id>/aktualne', methods=['GET'])
+@token_required
 def get_czujnik_dane_aktualne(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = czujnik_schema.dump(czujnik)
@@ -43,6 +46,7 @@ def get_czujnik_dane_aktualne(czujnik_id: int):
 
 
 @czujniki_bp.route('/czujniki/<int:czujnik_id>/historyczne', methods=['GET'])
+@token_required
 def get_czujnik_dane_historyczne(czujnik_id: int):
     czujnik = Czujnik.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = czujnik_schema.dump(czujnik)
