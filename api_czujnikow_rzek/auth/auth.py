@@ -1,6 +1,6 @@
 from flask import abort, jsonify
 from webargs.flaskparser import use_args
-from api_czujnikow_rzek.modele import user_schema, User
+from api_czujnikow_rzek.modele import user_schema, User, UserSchema
 from api_czujnikow_rzek import db
 from api_czujnikow_rzek.auth import auth_bp
 from api_czujnikow_rzek.utils import validate_json_content_type
@@ -19,6 +19,26 @@ def register(args: dict):
     user = User(**args)
     db.session.add(user)
     db.session.commit()
+
+    token = user.generate_jwt()
+
+    return({
+        'success': True,
+        'token': token
+    })
+
+
+@auth_bp.route('/login', methods=['POST'])
+@validate_json_content_type
+@use_args(UserSchema(only=['username', 'password']), error_status_code=400)
+def login(args: dict):
+    user = User.query.filter(User.username == args['username']).first()
+
+    if not user:
+        abort(401, description=f'Błędne dane!')
+
+    if not user.is_password_valid(args['password']):
+        abort(401, description=f'Błędne dane!')
 
     token = user.generate_jwt()
 

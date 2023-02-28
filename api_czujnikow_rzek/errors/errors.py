@@ -27,6 +27,11 @@ def bad_request_error(err):
     return ErrorResponse(messages, 400).to_response()
 
 
+@errors_bp.app_errorhandler(401)
+def unauthorized_error(err):
+    return ErrorResponse(err.description, 401).to_response()
+
+
 @errors_bp.app_errorhandler(415)
 def unsupported_media_type_error(err):
     return ErrorResponse(err.description, 415).to_response()

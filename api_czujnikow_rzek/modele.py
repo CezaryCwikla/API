@@ -2,7 +2,7 @@ import jwt
 
 from flask import current_app
 from api_czujnikow_rzek import db
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from marshmallow import Schema, fields, validate, validates, ValidationError
 
@@ -26,6 +26,9 @@ class User(db.Model):
             'exp': datetime.utcnow() + timedelta(minutes=current_app.config.get('JWT_EXPIRED', 30))
         }
         return jwt.encode(payload, current_app.config.get('SECRET_KEY'))
+
+    def is_password_valid(self, password:str) -> bool:
+        return check_password_hash(self.password, password)
 
 
 class Czujnik(db.Model):
