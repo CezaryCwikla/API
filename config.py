@@ -15,9 +15,6 @@ cx_Oracle.init_oracle_client(lib_dir=r"C:\instantclient_21_6")
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_BINDS = {'two': f'mysql://{name}:{password}@{ip}/env_data',
-                        'three': os.environ.get('ORACLE_URI'),
-                        'four': os.environ.get('SQLALCHEMY_DATABASE_URI')}
     PER_PAGE = 5
     JWT_EXPIRED = 30
 
@@ -25,7 +22,9 @@ class Config:
 class ProdConfig(Config):
     DB_FILE_PATH = base_dir / 'users.db'
     SQLALCHEMY_DATABASE_URI = f'sqlite:///{DB_FILE_PATH}'
-
+    SQLALCHEMY_BINDS = {'two': f'mysql://{name}:{password}@{ip}/env_data',
+                        'three': os.environ.get('ORACLE_URI'),
+                        'four': os.environ.get('SQLALCHEMY_DATABASE_URI')}
 
 
 # gdybym chcial robic testy np. z Userami (tokeny itp)

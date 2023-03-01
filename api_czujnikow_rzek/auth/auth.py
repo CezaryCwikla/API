@@ -25,7 +25,7 @@ def register(args: dict):
     return({
         'success': True,
         'token': token
-    })
+    }), 201
 
 
 @auth_bp.route('/login', methods=['POST'])

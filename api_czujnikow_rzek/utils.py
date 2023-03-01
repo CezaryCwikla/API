@@ -6,7 +6,7 @@ from functools import wraps
 from typing import Tuple
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import BinaryExpression
-from werkzeug.exceptions import UnsupportedMediaType
+from werkzeug.exceptions import UnsupportedMediaType, BadRequest
 
 
 
@@ -16,7 +16,10 @@ COMPRAISON_OPERATORS_RE = re.compile(r'(.*)\[(gte|gt|lte|lt)\]')
 def validate_json_content_type(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        data = request.get_json()
+        try:
+            data = request.get_json()
+        except BadRequest:
+            raise UnsupportedMediaType('Content Type must be Application/json')
         if data is None:
             raise UnsupportedMediaType('Content Type must be Application/json')
         return func(*args, **kwargs)

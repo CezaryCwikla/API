@@ -2,6 +2,7 @@ from flask import Response, jsonify
 from api_czujnikow_rzek import db
 from api_czujnikow_rzek.errors import errors_bp
 
+
 class ErrorResponse:
     def __init__(self, message: str, http_status: int):
         self.payload = {
@@ -35,6 +36,10 @@ def unauthorized_error(err):
 @errors_bp.app_errorhandler(415)
 def unsupported_media_type_error(err):
     return ErrorResponse(err.description, 415).to_response()
+
+@errors_bp.app_errorhandler(409)
+def conflict_error(err):
+    return ErrorResponse(err.description, 409).to_response()
 
 
 @errors_bp.app_errorhandler(500)
