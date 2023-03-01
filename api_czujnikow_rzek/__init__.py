@@ -17,14 +17,16 @@ def create_app(config_name='prod'):
 
     from api_czujnikow_rzek.errors import errors_bp
     from api_czujnikow_rzek.czujniki import czujniki_bp
-    from api_czujnikow_rzek.dane import dane_bp
     from api_czujnikow_rzek.powietrza import powietrza_bp
     from api_czujnikow_rzek.auth import auth_bp
+    from api_czujnikow_rzek.czujniki_v1 import czujniki_bp_v1
+    from api_czujnikow_rzek.powietrza_v1 import powietrza_bp_v1
 
     app.register_blueprint(errors_bp)
-    app.register_blueprint(czujniki_bp, url_prefix='/api/v1')
-    app.register_blueprint(dane_bp, url_prefix='/api/v1')
-    app.register_blueprint(powietrza_bp, url_prefix='/api/v1/powietrza')
-    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(czujniki_bp, url_prefix='/api/v2')
+    app.register_blueprint(powietrza_bp, url_prefix='/api/v2/powietrza')
+    app.register_blueprint(czujniki_bp_v1, url_prefix='/api/v1')
+    app.register_blueprint(powietrza_bp_v1, url_prefix='/api/v1/powietrza')
+    app.register_blueprint(auth_bp, url_prefix='/api/v2/auth')
 
     return app
