@@ -75,3 +75,28 @@ def test_register_already_used_email(client, user):
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is False
     assert 'token' not in response_data
+
+
+def test_get_current_user(client, user, token):
+    response = client.get('/api/v2/auth/me',
+                           headers={
+                               'Authorization': token
+                           })
+    response_data = response.get_json()
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['username'] == user['username']
+    assert response_data['data']['email'] == user['email']
+    assert 'id' in response_data['data']
+    assert 'created' in response_data['data']
+
+
+def test_get_current_user_missing_token(client):
+    response = client.get('/api/v2/auth/me')
+    response_data = response.get_json()
+    assert response.status_code == 401
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'data' not in response_data
+

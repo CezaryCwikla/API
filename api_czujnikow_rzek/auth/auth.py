@@ -55,5 +55,5 @@ def get_current_user(user_id: str):
 
     return({
         'success': True,
-        'user': user_schema.dump(user)
+        'data': user_schema.dump(user)
     })

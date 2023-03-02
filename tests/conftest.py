@@ -24,6 +24,18 @@ def client(app):
 
 
 @pytest.fixture
+def app_prod():
+    app = create_app('prod')
+    yield app
+
+
+@pytest.fixture
+def client_prod(app_prod):
+    with app_prod.test_client() as client_v2:
+        yield client_v2
+
+
+@pytest.fixture
 def user(client):
     user = {
         'username': 'test23y',
@@ -33,3 +45,14 @@ def user(client):
     client.post('/api/v2/auth/register',
                 json=user)
     return user
+
+
+@pytest.fixture
+def token(client, user):
+    response = client.post('/api/v2/auth/login',
+                           json={
+                            'username': user['username'],
+                            'password': user['password']
+                            })
+    return response.get_json()['token']
+
