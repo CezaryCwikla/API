@@ -42,3 +42,6 @@ def test_get_invalid_czujnik_wod_v1(client_prod):
     assert 'Czujnik' not in response_data
 
 
+#todo Test czujników wód /v2 (sprawdzanie gdy jest token i gdy nie ma) i /v1 aktualne i historyczne paths
+#todo Test czujników powietrza /v1/v2
+#todo Testy info
