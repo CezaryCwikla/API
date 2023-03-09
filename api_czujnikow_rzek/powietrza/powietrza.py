@@ -9,12 +9,12 @@ from api_czujnikow_rzek.modele import DanePowietrza, czujnik_schema, DanePowietr
     DaneZanieczyszczeniaPowietrzaSchema, DanePMPowietrzaSchema, DaneHalasuSchema,\
     danepmpowietrza_schema, danehalasu_schema, danezanieczyszczenia_schemna
 from api_czujnikow_rzek.utils import validate_json_content_type, get_schema_args, apply_order, \
-    apply_filter, get_pagination, token_required
+    apply_filter, get_pagination, token_required, token_required_with_id
 from api_czujnikow_rzek.powietrza import powietrza_bp
 
 
 @powietrza_bp.route('/czujniki', methods=['GET'])
-@token_required
+@token_required_with_id
 def get_czujniki(user_id: str):
     query = StacjePowietrza.query
     dane = StacjePowietrzaSchema(many=True).dump(query)
@@ -25,7 +25,7 @@ def get_czujniki(user_id: str):
 
 
 @powietrza_bp.route('/czujniki/<int:czujnik_id>', methods=['GET','POST'])
-@token_required
+@token_required_with_id
 def get_czujnik(user_id: str, czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     dane = stacjepowietrza_schema.dump(czujnik)
@@ -36,7 +36,7 @@ def get_czujnik(user_id: str, czujnik_id: int):
 
 
 @powietrza_bp.route('/czujniki/<int:czujnik_id>/aktualne', methods=['GET'])
-@token_required
+@token_required_with_id
 def get_aktualne(user_id:str, czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = stacjepowietrza_schema.dump(czujnik)
@@ -81,7 +81,7 @@ def get_aktualne(user_id:str, czujnik_id: int):
 
 
 @powietrza_bp.route('/czujniki/<int:czujnik_id>/historyczne', methods=['GET'])
-@token_required
+@token_required_with_id
 def get_historyczne(user_id:str, czujnik_id: int):
     czujnik = StacjePowietrza.query.get_or_404(czujnik_id, description=f'Czujnik z id {czujnik_id} not found')
     czujnik = stacjepowietrza_schema.dump(czujnik)

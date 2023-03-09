@@ -11,8 +11,11 @@ import datetime
 import pytest
 
 
-def test_get_czujniki_wod_v1_with_records(client_prod):
-    response = client_prod.get('/api/v1/czujniki')
+def test_get_czujniki_wod_v2_with_records(client_prod, token):
+    response = client_prod.get('/api/v2/czujniki',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
@@ -20,9 +23,33 @@ def test_get_czujniki_wod_v1_with_records(client_prod):
     assert len(response_data["Zbiór czujników"]) != 0
 
 
+def test_get_czujniki_wod_v2_missing_token(client_prod):
+    response = client_prod.get('/api/v2/czujniki')
+    response_data = response.get_json()
+    assert response.status_code == 401
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'Zbiór czujników' not in response_data
+
+
+def test_get_czujniki_wod_v2_wrong_token(client_prod):
+    response = client_prod.get('/api/v2/czujniki',
+                               headers={
+                                    'Authorization': '123'
+                               })
+    response_data = response.get_json()
+    assert response.status_code == 401
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'Zbiór czujników' not in response_data
+
+
 @pytest.mark.parametrize('id', [1, 2, 3, 4, 5, 6, 7, pytest.param(8, marks=pytest.mark.xfail), 9])
-def test_get_czujnik_wod_v1(client_prod, id):
-    response = client_prod.get(f'/api/v1/czujniki/{id}')
+def test_get_czujnik_wod_v2(client_prod, id, token):
+    response = client_prod.get(f'/api/v2/czujniki/{id}',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
@@ -31,9 +58,12 @@ def test_get_czujnik_wod_v1(client_prod, id):
     assert response_data["Czujnik"]['status_id'] == 'active'
 
 
-def test_get_invalid_czujnik_wod_v1(client_prod):
+def test_get_invalid_czujnik_wod_v2(client_prod, token):
     id = 100
-    response = client_prod.get(f'/api/v1/czujniki/{id}')
+    response = client_prod.get(f'/api/v2/czujniki/{id}',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     assert response.status_code == 404
     assert response.headers['Content-Type'] == 'application/json'
@@ -43,8 +73,11 @@ def test_get_invalid_czujnik_wod_v1(client_prod):
 
 
 @pytest.mark.parametrize('id', [1, 2, 3, 4, 5, 6, 7, pytest.param(8, marks=pytest.mark.xfail), 9])
-def test_get_czujnik_wod_v1_aktualne(client_prod, id):
-    response = client_prod.get(f'/api/v1/czujniki/{id}/aktualne')
+def test_get_czujnik_wod_v2_aktualne(client_prod, id, token):
+    response = client_prod.get(f'/api/v2/czujniki/{id}/aktualne',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     today = datetime.date.today().strftime("%Y-%m-%d")
     assert response.status_code == 200
@@ -58,9 +91,12 @@ def test_get_czujnik_wod_v1_aktualne(client_prod, id):
     assert response_data['Ostatni pomiar']["DateTime"][:10] == today
 
 
-def test_get_invalid_czujnik_wod_v1_aktualne(client_prod):
+def test_get_invalid_czujnik_wod_v2_aktualne(client_prod, token):
     id = 100
-    response = client_prod.get(f'/api/v1/czujniki/{id}/aktualne')
+    response = client_prod.get(f'/api/v2/czujniki/{id}/aktualne',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     assert response.status_code == 404
     assert response.headers['Content-Type'] == 'application/json'
@@ -70,8 +106,11 @@ def test_get_invalid_czujnik_wod_v1_aktualne(client_prod):
 
 
 @pytest.mark.parametrize('id', [1, 2, 3, 4, 5, 6, 7, pytest.param(8, marks=pytest.mark.xfail), 9])
-def test_get_czujnik_wod_v1_historyczne(client_prod, id):
-    response = client_prod.get(f'/api/v1/czujniki/{id}/historyczne')
+def test_get_czujnik_wod_v2_historyczne(client_prod, id, token):
+    response = client_prod.get(f'/api/v2/czujniki/{id}/historyczne',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     today = datetime.date.today().strftime("%Y-%m-%d")
     assert response.status_code == 200
@@ -87,10 +126,12 @@ def test_get_czujnik_wod_v1_historyczne(client_prod, id):
     assert len(response_data['Dane z ostatnich 24 godzin']) < 100
 
 
-
-def test_get_invalid_czujnik_wod_v1_historyczne(client_prod):
+def test_get_invalid_czujnik_wod_v2_historyczne(client_prod, token):
     id = 100
-    response = client_prod.get(f'/api/v1/czujniki/{id}/historyczne')
+    response = client_prod.get(f'/api/v1/czujniki/{id}/historyczne',
+                               headers={
+                                    'Authorization': token
+                               })
     response_data = response.get_json()
     assert response.status_code == 404
     assert response.headers['Content-Type'] == 'application/json'

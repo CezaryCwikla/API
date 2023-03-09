@@ -45,6 +45,28 @@ def token_required(func):
         except jwt.InvalidTokenError:
             abort(401, description='Niewłaściwy token.')
         else:
+            return func(*args, **kwargs)
+    return wrapper
+
+
+def token_required_with_id(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        token = None
+        auth = request.headers.get('Authorization')
+        if auth:
+            token = auth
+        if token is None:
+            abort(401, description='Brak tokena. Zaloguj się lub zarejestruj by uzyskać token')
+
+        try:
+            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
+
+        except jwt.ExpiredSignatureError:
+            abort(401, description='Token wygasł. Zaloguj się')
+        except jwt.InvalidTokenError:
+            abort(401, description='Niewłaściwy token.')
+        else:
             return func(payload['user_id'], *args, **kwargs)
     return wrapper
 

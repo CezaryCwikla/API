@@ -39,7 +39,7 @@ def get_aktualne(czujnik_id: int):
 
     danemeteo = DanePowietrza.query.filter(DanePowietrza.device_id == czujnik_id)
     danemeteo = danemeteo.order_by(DanePowietrza.id.desc()).first() ##tu chyba nie jest dla czujnika z odpowiednim id
-   #dane, pagination = get_pagination(dane, 'czujniki_v1.get_czujnik_dane')
+    # dane, pagination = get_pagination(dane, 'czujniki_v1.get_czujnik_dane')
     danemeteo = danepowietrza_schema.dump(danemeteo)
 
     danepm = DanePMPowietrza.query.filter(DanePMPowietrza.device_id == czujnik_id)

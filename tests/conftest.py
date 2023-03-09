@@ -2,6 +2,17 @@ import pytest
 from api_czujnikow_rzek import create_app, db
 from api_czujnikow_rzek.modele import User
 
+###### Powtórzenie z config.py, ale wymagane do działania, bo nie ładuje env
+import os
+import urllib.parse
+from pathlib import Path
+from dotenv import load_dotenv
+password = urllib.parse.quote_plus(str(os.environ.get('PASSWORD2')))  # '123%40456
+name = urllib.parse.quote_plus(str(os.environ.get('NAME')))
+ip = urllib.parse.quote_plus(str(os.environ.get('IP')))
+base_dir = Path(__file__).resolve().parent
+env_file = base_dir / '.env'
+load_dotenv(env_file)
 
 @pytest.fixture
 def app():
@@ -26,7 +37,9 @@ def client(app):
 @pytest.fixture
 def app_prod():
     app = create_app('prod')
+    app.config['SQLALCHEMY_BINDS']['two'] = f'mysql://{name}:{password}@{ip}/env_data'
     yield app
+
 
 
 @pytest.fixture
@@ -45,7 +58,6 @@ def user(client):
     client.post('/api/v2/auth/register',
                 json=user)
     return user
-
 
 @pytest.fixture
 def token(client, user):
